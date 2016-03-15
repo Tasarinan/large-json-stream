@@ -39,7 +39,7 @@ describe('JSONStream', function() {
     });
 
     describe('streamFromFile', function() {
-        const filePath = path.join('test', 'test.json');
+        const filePath = path.join('test', 'data', 'test.json');
 
         it('should throw an error if no file path passed in', () => {
             (() => jsonStream().streamFromFile)().should.throw();
@@ -71,6 +71,35 @@ describe('JSONStream', function() {
                 });
         });
 
+    });
+
+    describe('streamToFile', function() {
+        const filePath = path.join('test', 'data', 'output.json');
+
+        const data = {
+            name: 'Ryan',
+            gender: 'male',
+            favoriteBooks: [
+                {title: 'Ethics of Liberty', author: 'Murray Rothbard'},
+                {title: 'Bible', author: 'God'}
+            ],
+            other: {
+                some: 'value',
+                another: 'thing',
+                myArr: [12, 13, 14, 15]
+            }
+        };
+
+        it('should JSON encode data and stream to a file', (done) => {
+            jsonStream()
+                .streamToFile(filePath, data)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    }
+                    done();
+                });
+        });
     });
 
 

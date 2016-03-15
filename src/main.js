@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import oboe from 'oboe';
 import progress from 'progress-stream';
+import _ from 'lodash';
 
 const JSONStream = function() {
 
@@ -51,6 +52,57 @@ const JSONStream = function() {
         });
     };
 
+    let streamToFileData;
+    let streamToFilePath;
+    let outerDepth;
+
+    const __streamToFile = () => {
+        return new Promise((resolve, reject) => {
+
+            const stream = fs.createWriteStream(path.join(streamToFilePath));
+
+            const objLoop = (obj, func, done, i = 0, keysArr) => {
+                keysArr = keysArr || Object.keys(obj);
+                const key = keysArr[i];
+                func(key, obj[key], keysArr.length - 1 - i);
+                return (i === keysArr.length - 1) ? done() : objLoop(obj, func, done, i + 1, keysArr);
+            };
+
+            stream.write('{');
+
+            const recStringify = (item, recDepth = 0, depth = 1) => {
+                if(recDepth === 0 || depth <= recDepth) {
+                    if(_.isArray(item)) {
+                        return '[' + item.map(d => recStringify(d, recDepth, depth + 1)).join(',') + ']';
+                    } else if(_.isPlainObject(item)) {
+                        return '{' + Object.keys(item).map(k => `"${k}":` + recStringify(item[k], recDepth, depth + 1)).join(',') + '}';
+                    } else {
+                        return JSON.stringify(item);
+                    }
+                } else {
+                    return JSON.stringify(item);
+                }
+            };
+
+            objLoop(
+                streamToFileData,
+                (key, val, remaining) => {
+                    if(remaining > 0) {
+                        stream.write(`"${key}":${recStringify(val, outerDepth)},`);
+                    } else {
+                        stream.write(`"${key}":${recStringify(val, outerDepth)}`);
+                    }
+                },
+                () => {
+                    stream.write('}');
+                    resolve();
+                }
+            );
+
+        });
+
+    };
+
     return {
         streamFromFile(origFilePath) {
             if(!origFilePath) {
@@ -60,8 +112,11 @@ const JSONStream = function() {
             runFunc = __streamFromFile;
             return this;
         },
-        parse() {
-
+        parse(filePath, data, options = {}) {
+            streamToFilePath = path.normalize(filePath);
+            outerDepth = options.depth;
+            runFunc = __streamToFile;
+            return this;
         },
         streamToFile() {
 
