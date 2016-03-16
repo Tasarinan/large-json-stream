@@ -21,15 +21,15 @@ describe('JSONStream', function() {
         it('should have a streamFromFile method', () => {
             jsonStream().streamFromFile.should.be.a.Function();
         });
-        it('should have a parse method', () => {
-            jsonStream().parse.should.be.a.Function();
-        });
+        // it('should have a parse method', () => {
+        //     jsonStream().parse.should.be.a.Function();
+        // });
         it('should have a streamToFile method', () => {
             jsonStream().streamToFile.should.be.a.Function();
         });
-        it('should have a encode method', () => {
-            jsonStream().encode.should.be.a.Function();
-        });
+        // it('should have a encode method', () => {
+        //     jsonStream().encode.should.be.a.Function();
+        // });
         it('should have a progress method', () => {
             jsonStream().progress.should.be.a.Function();
         });
@@ -143,42 +143,42 @@ describe('JSONStream', function() {
 
     });
 
-    describe('encode', function() {
-
-        it('should take an Object and encode it into a JSON string', (done) => {
-            jsonStream()
-                .encode(dataObj)
-                .done((e, res) => {
-                    if(e) {
-                        console.error(e);
-                    }
-                    done();
-                });
-        });
-
-        it('should take an Array and encode it into a JSON string', (done) => {
-            jsonStream()
-                .encode(dataArr)
-                .done((e, res) => {
-                    if(e) {
-                        console.error(e);
-                    }
-                    done();
-                });
-        });
-
-        it('should take other and encode it into a JSON string', (done) => {
-            jsonStream()
-                .encode(dataStr)
-                .done((e, res) => {
-                    if(e) {
-                        console.error(e);
-                    }
-                    done();
-                });
-        });
-
-    });
+    // describe('encode', function() {
+    //
+    //     it('should take an Object and encode it into a JSON string', (done) => {
+    //         jsonStream()
+    //             .encode(dataObj)
+    //             .done((e, res) => {
+    //                 if(e) {
+    //                     console.error(e);
+    //                 }
+    //                 done();
+    //             });
+    //     });
+    //
+    //     it('should take an Array and encode it into a JSON string', (done) => {
+    //         jsonStream()
+    //             .encode(dataArr)
+    //             .done((e, res) => {
+    //                 if(e) {
+    //                     console.error(e);
+    //                 }
+    //                 done();
+    //             });
+    //     });
+    //
+    //     it('should take other and encode it into a JSON string', (done) => {
+    //         jsonStream()
+    //             .encode(dataStr)
+    //             .done((e, res) => {
+    //                 if(e) {
+    //                     console.error(e);
+    //                 }
+    //                 done();
+    //             });
+    //     });
+    //
+    // });
 
 
 
