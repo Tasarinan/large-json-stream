@@ -73,29 +73,38 @@ describe('JSONStream', function() {
 
     });
 
+    const dataObj = {
+        name: 'Ryan',
+        gender: 'male',
+        favoriteBooks: [
+            {title: 'Ethics of Liberty', author: 'Murray Rothbard'},
+            {title: 'Bible', author: 'God'}
+        ],
+        other: {
+            some: 'value',
+            another: 'thing',
+            myArr: [12, 13, 14, 15]
+        },
+        last: 'str'
+    };
+    const dataArr = [
+        'something',
+        'else',
+        431432421,
+        46432432,
+        {name: 'Ryan', age: 31},
+        ['Ryan', 'Hannah']
+    ];
+    const dataStr = 'Hello! My name is Ryan.';
+
     describe('streamToFile', function() {
 
         it('should JSON encode an Object and stream to a file', (done) => {
 
             const filePath = path.join('test', 'data', 'obj-output.json');
 
-            const data = {
-                name: 'Ryan',
-                gender: 'male',
-                favoriteBooks: [
-                    {title: 'Ethics of Liberty', author: 'Murray Rothbard'},
-                    {title: 'Bible', author: 'God'}
-                ],
-                other: {
-                    some: 'value',
-                    another: 'thing',
-                    myArr: [12, 13, 14, 15]
-                },
-                last: 'str'
-            };
-
             jsonStream()
-                .streamToFile(filePath, data)
+                .streamToFile(filePath, dataObj)
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
@@ -108,17 +117,8 @@ describe('JSONStream', function() {
 
             const filePath = path.join('test', 'data', 'arr-output.json');
 
-            const data = [
-                'something',
-                'else',
-                431432421,
-                46432432,
-                {name: 'Ryan', age: 31},
-                ['Ryan', 'Hannah']
-            ];
-
             jsonStream()
-                .streamToFile(filePath, data)
+                .streamToFile(filePath, dataArr)
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
@@ -131,10 +131,45 @@ describe('JSONStream', function() {
 
             const filePath = path.join('test', 'data', 'other-output.json');
 
-            const data = 'Hello! My name is Ryan.';
-
             jsonStream()
-                .streamToFile(filePath, data)
+                .streamToFile(filePath, dataStr)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    }
+                    done();
+                });
+        });
+
+    });
+
+    describe('encode', function() {
+
+        it('should take an Object and encode it into a JSON string', (done) => {
+            jsonStream()
+                .encode(dataObj)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    }
+                    done();
+                });
+        });
+
+        it('should take an Array and encode it into a JSON string', (done) => {
+            jsonStream()
+                .encode(dataArr)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    }
+                    done();
+                });
+        });
+
+        it('should take other and encode it into a JSON string', (done) => {
+            jsonStream()
+                .encode(dataStr)
                 .done((e, res) => {
                     if(e) {
                         console.error(e);

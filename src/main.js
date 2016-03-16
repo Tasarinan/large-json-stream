@@ -171,6 +171,23 @@ const JSONStream = function() {
 
             } else if(_.isArray(origData)) {
 
+                const totalLength = origData.length;
+                jsonData.push('[');
+                recLoop(
+                    origData,
+                    (val, idx) => {
+                        if(idx === totalLength - 1) {
+                            jsonData.push(`${recStringify(val, outerDepth)}`);
+                        } else {
+                            jsonData.push(`${recStringify(val, outerDepth)},`);
+                        }
+                    },
+                    () => {
+                        jsonData.push(']');
+                        resolve(jsonData.join(''));
+                    }
+                );
+
             } else {
                 resolve(JSON.stringify(origData));
             }
