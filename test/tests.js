@@ -106,7 +106,7 @@ describe('JSONStream', function() {
 
             jsonStream()
                 .streamToFile(filePath, dataObj)
-                .progress(p => console.log(p))
+                // .progress(p => console.log(p))
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
@@ -121,7 +121,7 @@ describe('JSONStream', function() {
 
             jsonStream()
                 .streamToFile(filePath, dataArr)
-                .progress(p => console.log(p))
+                // .progress(p => console.log(p))
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
