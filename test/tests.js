@@ -180,14 +180,6 @@ describe('JSONStream', function() {
     //
     // });
 
-
-
-
-
-
-
-
-
     // describe('the progress method', () => {
     //     it('should register a callback which is run on streaming progress', done => {
     //
