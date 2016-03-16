@@ -74,38 +74,6 @@ const JSONStream = function() {
         });
     };
 
-    // __parse = () => {
-    //     return new Promise((resolve, reject) => {
-    //
-    //         let stream;
-    //
-    //         // if(onProgress) {
-    //         //     const prog = progress({
-    //         //         length: stat.size,
-    //         //         time: progressInterval
-    //         //     }).on('progress', p => {
-    //         //         onProgress(p.percentage.toFixed());
-    //         //     });
-    //         //
-    //         //     stream = fs.createReadStream(filePath).pipe(prog);
-    //         // } else{
-    //         //     stream = fs.createReadStream(filePath);
-    //         // }
-    //
-    //         stream =
-    //
-    //         oboe(stream)
-    //             .on('done', d => {
-    //                 setTimeout(() => {
-    //                     resolve(d);
-    //                 }, 0);
-    //             })
-    //             .on('fail', e => {
-    //                 reject(e);
-    //             });
-    //     });
-    // };
-
     let streamToFileData;
     let streamToFilePath;
     let outerDepth;
@@ -128,7 +96,8 @@ const JSONStream = function() {
     const __streamToFile = () => {
         return new Promise((resolve, reject) => {
 
-            const stream = fs.createWriteStream(path.join(streamToFilePath));
+            let stream = fs.createWriteStream(path.join(streamToFilePath));
+
             stream.on('finish', () => resolve());
 
             if(_.isPlainObject(streamToFileData)) {
@@ -137,6 +106,9 @@ const JSONStream = function() {
                 recLoop(
                     streamToFileData,
                     (val, key, idx) => {
+                        if(onProgress) {
+                            onProgress((((idx + 1)/totalLength)*100).toFixed());
+                        }
                         if(idx === totalLength - 1) {
                             stream.write(`"${key}":${recStringify(val, outerDepth)}`);
                         } else {
@@ -154,6 +126,9 @@ const JSONStream = function() {
                 recLoop(
                     streamToFileData,
                     (val, idx) => {
+                        if(onProgress) {
+                            onProgress((((idx + 1)/totalLength)*100).toFixed());
+                        }
                         if(idx === totalLength - 1) {
                             stream.write(`${recStringify(val, outerDepth)}`);
                         } else {
@@ -175,57 +150,6 @@ const JSONStream = function() {
 
     };
 
-    let origData;
-
-    // const __encode = () => {
-    //     return new Promise((resolve, reject) => {
-    //
-    //         let jsonData = [];
-    //
-    //         if(_.isPlainObject(origData)) {
-    //
-    //             const totalLength = Object.keys(origData).length;
-    //             jsonData.push('{');
-    //             recLoop(
-    //                 origData,
-    //                 (val, key, idx) => {
-    //                     if(idx === totalLength - 1) {
-    //                         jsonData.push(`"${key}":${recStringify(val, outerDepth)}`);
-    //                     } else {
-    //                         jsonData.push(`"${key}":${recStringify(val, outerDepth)},`);
-    //                     }
-    //                 },
-    //                 () => {
-    //                     jsonData.push('}');
-    //                     resolve(jsonData.join(''));
-    //                 }
-    //             );
-    //
-    //         } else if(_.isArray(origData)) {
-    //
-    //             const totalLength = origData.length;
-    //             jsonData.push('[');
-    //             recLoop(
-    //                 origData,
-    //                 (val, idx) => {
-    //                     if(idx === totalLength - 1) {
-    //                         jsonData.push(`${recStringify(val, outerDepth)}`);
-    //                     } else {
-    //                         jsonData.push(`${recStringify(val, outerDepth)},`);
-    //                     }
-    //                 },
-    //                 () => {
-    //                     jsonData.push(']');
-    //                     resolve(jsonData.join(''));
-    //                 }
-    //             );
-    //
-    //         } else {
-    //             resolve(JSON.stringify(origData));
-    //         }
-    //     });
-    // };
-
     return Object.create({
         streamFromFile(origFilePath) {
             if(!origFilePath) {
@@ -235,9 +159,6 @@ const JSONStream = function() {
             runFunc = __streamFromFile;
             return this;
         },
-        // parse() {
-        //
-        // },
         streamToFile(origFilePath, data, options = {}) {
             if(!origFilePath) {
                 throw new Error('You must pass in a file path string');
@@ -248,12 +169,6 @@ const JSONStream = function() {
             runFunc = __streamToFile;
             return this;
         },
-        // encode(data, options = {}) {
-        //     outerDepth = options.depth;
-        //     origData = data;
-        //     runFunc = __encode;
-        //     return this;
-        // },
         progress(callback, interval) {
 
             if(interval && typeof interval === 'number') {

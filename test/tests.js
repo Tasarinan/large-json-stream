@@ -64,6 +64,7 @@ describe('JSONStream', function() {
         it('should pass in the parsed data as the second parameter of the callback', (done) => {
             jsonStream()
                 .streamFromFile(filePath)
+                // .progress(p => console.log(p))
                 .done((e, data) => {
                     if(data) {
                         done();
@@ -105,6 +106,7 @@ describe('JSONStream', function() {
 
             jsonStream()
                 .streamToFile(filePath, dataObj)
+                .progress(p => console.log(p))
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
@@ -119,6 +121,7 @@ describe('JSONStream', function() {
 
             jsonStream()
                 .streamToFile(filePath, dataArr)
+                .progress(p => console.log(p))
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
@@ -142,43 +145,6 @@ describe('JSONStream', function() {
         });
 
     });
-
-    // describe('encode', function() {
-    //
-    //     it('should take an Object and encode it into a JSON string', (done) => {
-    //         jsonStream()
-    //             .encode(dataObj)
-    //             .done((e, res) => {
-    //                 if(e) {
-    //                     console.error(e);
-    //                 }
-    //                 done();
-    //             });
-    //     });
-    //
-    //     it('should take an Array and encode it into a JSON string', (done) => {
-    //         jsonStream()
-    //             .encode(dataArr)
-    //             .done((e, res) => {
-    //                 if(e) {
-    //                     console.error(e);
-    //                 }
-    //                 done();
-    //             });
-    //     });
-    //
-    //     it('should take other and encode it into a JSON string', (done) => {
-    //         jsonStream()
-    //             .encode(dataStr)
-    //             .done((e, res) => {
-    //                 if(e) {
-    //                     console.error(e);
-    //                 }
-    //                 done();
-    //             });
-    //     });
-    //
-    // });
 
     // describe('the progress method', () => {
     //     it('should register a callback which is run on streaming progress', done => {
