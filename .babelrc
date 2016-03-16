@@ -1,5 +1,5 @@
 {
-    "sourceMap": false,
+    "sourceMap": true,
     "presets": [
         "es2015"
     ],
