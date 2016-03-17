@@ -64,8 +64,10 @@ describe('JSONStream', function() {
         it('should pass in the parsed data as the second parameter of the callback', (done) => {
             jsonStream()
                 .streamFromFile(filePath)
-                // .progress(p => console.log(p))
                 .done((e, data) => {
+                    if(e) {
+                        console.error(e);
+                    }
                     if(data) {
                         done();
                     }
@@ -106,7 +108,6 @@ describe('JSONStream', function() {
 
             jsonStream()
                 .streamToFile(filePath, dataObj)
-                // .progress(p => console.log(p))
                 .done((e, res) => {
                     if(e) {
                         console.error(e);
@@ -121,7 +122,6 @@ describe('JSONStream', function() {
 
             jsonStream()
                 .streamToFile(filePath, dataArr)
-                // .progress(p => console.log(p))
                 .done((e, res) => {
                     if(e) {
                         console.error(e);

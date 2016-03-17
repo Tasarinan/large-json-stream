@@ -4,17 +4,52 @@ import oboe from 'oboe';
 import progress from 'progress-stream';
 import _ from 'lodash';
 
-const recLoop = (dataObj, func, onDone) => {
+// const recLoop = (dataObj, func, onDone) => {
+//
+//     const objLoop = (obj, func, onDone, i = 0, keysArr) => {
+//         keysArr = keysArr || Object.keys(obj);
+//         const key = keysArr[i];
+//         func(obj[key], key, i);
+//         return (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
+//     };
+//     const arrLoop = (arr, func, onDone, i = 0) => {
+//         func(arr[i], i);
+//         return (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
+//     };
+//
+//     if(_.isPlainObject(dataObj)) {
+//         return objLoop(dataObj, func, onDone);
+//     } else if(_.isArray(dataObj)) {
+//         return arrLoop(dataObj, func, onDone);
+//     } else {
+//         console.error(new Error('The data object passed into recLoop must be an Object or Array.'));
+//     }
+// };
+
+const asyncRecLoop = (dataObj, func, onDone) => {
 
     const objLoop = (obj, func, onDone, i = 0, keysArr) => {
         keysArr = keysArr || Object.keys(obj);
         const key = keysArr[i];
-        func(obj[key], key, i);
-        return (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
+        func(obj[key], key, i).then(
+            () => {
+                // setTimeout(() => {
+                    (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
+                // }, 0);
+            },
+            e => console.error(e)
+        );
+        // return (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
     };
     const arrLoop = (arr, func, onDone, i = 0) => {
-        func(arr[i], i);
-        return (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
+        func(arr[i], i).then(
+            () => {
+                // setTimeout(() => {
+                    (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
+                // }, 0);
+            },
+            e => console.error(e)
+        );
     };
 
     if(_.isPlainObject(dataObj)) {
@@ -79,7 +114,6 @@ const JSONStream = function() {
     let outerDepth;
 
     const recStringify = (item, recDepth = 0, depth = 1) => {
-        // console.log(`item is ${item}`);
         if(recDepth === 0 || depth <= recDepth) {
             if(_.isArray(item)) {
                 return '[' + item.map(d => recStringify(d, recDepth, depth + 1)).join(',') + ']';
@@ -102,47 +136,64 @@ const JSONStream = function() {
 
             if(_.isPlainObject(streamToFileData)) {
                 const totalLength = Object.keys(streamToFileData).length;
-                stream.write('{');
-                recLoop(
-                    streamToFileData,
-                    (val, key, idx) => {
-                        if(onProgress) {
-                            onProgress((((idx + 1)/totalLength)*100).toFixed());
+                stream.write('{', () => {
+                    asyncRecLoop(
+                        streamToFileData,
+                        (val, key, idx) => {
+                            return new Promise(resolve => {
+                                if(onProgress) {
+                                    onProgress((((idx + 1)/totalLength)*100).toFixed());
+                                }
+                                if(idx === totalLength - 1) {
+                                    stream.write(`"${key}":${recStringify(val, outerDepth)}`, () => {
+                                        resolve();
+                                    });
+                                } else {
+                                    stream.write(`"${key}":${recStringify(val, outerDepth)},`, () => {
+                                        resolve();
+                                    });
+                                }
+                            });
+                        },
+                        () => {
+                            stream.write('}', () => {
+                                stream.end();
+                            });
                         }
-                        if(idx === totalLength - 1) {
-                            stream.write(`"${key}":${recStringify(val, outerDepth)}`);
-                        } else {
-                            stream.write(`"${key}":${recStringify(val, outerDepth)},`);
-                        }
-                    },
-                    () => {
-                        stream.write('}');
-                        stream.end();
-                    }
-                );
+                    );
+                });
             } else if(_.isArray(streamToFileData)) {
                 const totalLength = streamToFileData.length;
-                stream.write('[');
-                recLoop(
-                    streamToFileData,
-                    (val, idx) => {
-                        if(onProgress) {
-                            onProgress((((idx + 1)/totalLength)*100).toFixed());
+                stream.write('[', () => {
+                    asyncRecLoop(
+                        streamToFileData,
+                        (val, idx) => {
+                            return new Promise(resolve => {
+                                if(onProgress) {
+                                    onProgress((((idx + 1)/totalLength)*100).toFixed());
+                                }
+                                if(idx === totalLength - 1) {
+                                    stream.write(`${recStringify(val, outerDepth)}`, () => {
+                                        resolve();
+                                    });
+                                } else {
+                                    stream.write(`${recStringify(val, outerDepth)},`, () => {
+                                        resolve();
+                                    });
+                                }
+                            });
+                        },
+                        () => {
+                            stream.write(']', () => {
+                                stream.end();
+                            });
                         }
-                        if(idx === totalLength - 1) {
-                            stream.write(`${recStringify(val, outerDepth)}`);
-                        } else {
-                            stream.write(`${recStringify(val, outerDepth)},`);
-                        }
-                    },
-                    () => {
-                        stream.write(']');
-                        stream.end();
-                    }
-                );
+                    );
+                });
             } else {
-                stream.write(JSON.stringify(streamToFileData));
-                stream.end();
+                stream.write(JSON.stringify(streamToFileData), () => {
+                    stream.end();
+                });
             }
 
 
