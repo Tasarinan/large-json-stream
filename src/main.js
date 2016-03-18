@@ -33,20 +33,15 @@ const asyncRecLoop = (dataObj, func, onDone) => {
         const key = keysArr[i];
         func(obj[key], key, i).then(
             () => {
-                // setTimeout(() => {
-                    (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
-                // }, 0);
+                (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
             },
             e => console.error(e)
         );
-        // return (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
     };
     const arrLoop = (arr, func, onDone, i = 0) => {
         func(arr[i], i).then(
             () => {
-                // setTimeout(() => {
-                    (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
-                // }, 0);
+                (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
             },
             e => console.error(e)
         );
