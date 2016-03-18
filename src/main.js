@@ -205,7 +205,7 @@ const JSONStream = function() {
             if(_.isPlainObject(origData)) {
                 const totalLength = Object.keys(origData).length;
 
-                dataArr.push('{}');
+                dataArr.push('{');
 
                 recLoop(
                     origData,

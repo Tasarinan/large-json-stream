@@ -235,7 +235,7 @@ var JSONStream = function JSONStream() {
                 (function () {
                     var totalLength = Object.keys(origData).length;
 
-                    dataArr.push('{}');
+                    dataArr.push('{');
 
                     recLoop(origData, function (val, key, idx) {
                         if (onProgress) {
