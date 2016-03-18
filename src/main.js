@@ -4,27 +4,27 @@ import oboe from 'oboe';
 import progress from 'progress-stream';
 import _ from 'lodash';
 
-// const recLoop = (dataObj, func, onDone) => {
-//
-//     const objLoop = (obj, func, onDone, i = 0, keysArr) => {
-//         keysArr = keysArr || Object.keys(obj);
-//         const key = keysArr[i];
-//         func(obj[key], key, i);
-//         return (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
-//     };
-//     const arrLoop = (arr, func, onDone, i = 0) => {
-//         func(arr[i], i);
-//         return (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
-//     };
-//
-//     if(_.isPlainObject(dataObj)) {
-//         return objLoop(dataObj, func, onDone);
-//     } else if(_.isArray(dataObj)) {
-//         return arrLoop(dataObj, func, onDone);
-//     } else {
-//         console.error(new Error('The data object passed into recLoop must be an Object or Array.'));
-//     }
-// };
+const recLoop = (dataObj, func, onDone) => {
+
+    const objLoop = (obj, func, onDone, i = 0, keysArr) => {
+        keysArr = keysArr || Object.keys(obj);
+        const key = keysArr[i];
+        func(obj[key], key, i);
+        return (i === keysArr.length - 1) ? onDone() : objLoop(obj, func, onDone, i + 1, keysArr);
+    };
+    const arrLoop = (arr, func, onDone, i = 0) => {
+        func(arr[i], i);
+        return (i === arr.length - 1) ? onDone() : arrLoop(arr, func, onDone, i + 1);
+    };
+
+    if(_.isPlainObject(dataObj)) {
+        return objLoop(dataObj, func, onDone);
+    } else if(_.isArray(dataObj)) {
+        return arrLoop(dataObj, func, onDone);
+    } else {
+        console.error(new Error('The data object passed into recLoop must be an Object or Array.'));
+    }
+};
 
 const asyncRecLoop = (dataObj, func, onDone) => {
 
@@ -196,6 +196,63 @@ const JSONStream = function() {
 
     };
 
+    let origData;
+    const __encode = () => {
+        return new Promise((resolve, reject) => {
+
+            let dataArr = [];
+
+            if(_.isPlainObject(origData)) {
+                const totalLength = Object.keys(origData).length;
+
+                dataArr.push('{}');
+
+                recLoop(
+                    origData,
+                    (val, key, idx) => {
+                        if(onProgress) {
+                            onProgress((((idx + 1)/totalLength)*100).toFixed());
+                        }
+                        if(idx === totalLength - 1) {
+                            dataArr.push(`"${key}":${recStringify(val, outerDepth)}`);
+                        } else {
+                            dataArr.push(`"${key}":${recStringify(val, outerDepth)},`);
+                        }
+                    },
+                    () => {
+                        dataArr.push('}');
+                        resolve(dataArr.join(''));
+                    }
+                );
+
+            } else if(_.isArray(origData)) {
+                const totalLength = origData.length;
+                dataArr.push('[');
+                recLoop(
+                    origData,
+                    (val, idx) => {
+                        if(onProgress) {
+                            onProgress((((idx + 1)/totalLength)*100).toFixed());
+                        }
+                        if(idx === totalLength - 1) {
+                            dataArr.push(`${recStringify(val, outerDepth)}`);
+
+                        } else {
+                            dataArr.push(`${recStringify(val, outerDepth)},`);
+                        }
+                    },
+                    () => {
+                        dataArr.push(']');
+                        resolve(dataArr.join(''));
+                    }
+                );
+            } else {
+                resolve(JSON.stringify(origData));
+            }
+
+        });
+    };
+
     return Object.create({
         streamFromFile(origFilePath) {
             if(!origFilePath) {
@@ -213,6 +270,15 @@ const JSONStream = function() {
             streamToFileData = data;
             outerDepth = options.depth;
             runFunc = __streamToFile;
+            return this;
+        },
+        encode(data, options = {}) {
+            if(!data && data !== 0) {
+                return '';
+            }
+            origData = data;
+            outerDepth = options.depth;
+            runFunc = __encode;
             return this;
         },
         progress(callback, interval) {

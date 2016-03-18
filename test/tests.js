@@ -27,9 +27,9 @@ describe('JSONStream', function() {
         it('should have a streamToFile method', () => {
             jsonStream().streamToFile.should.be.a.Function();
         });
-        // it('should have a encode method', () => {
-        //     jsonStream().encode.should.be.a.Function();
-        // });
+        it('should have a encode method', () => {
+            jsonStream().encode.should.be.a.Function();
+        });
         it('should have a progress method', () => {
             jsonStream().progress.should.be.a.Function();
         });
@@ -141,6 +141,49 @@ describe('JSONStream', function() {
                         console.error(e);
                     }
                     done();
+                });
+        });
+
+    });
+
+    describe('encode', function() {
+
+        it('should JSON encode an Object and pass it into the done callback', (done) => {
+
+            jsonStream()
+                .encode(dataObj)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    } else if(res) {
+                        done();
+                    }
+                });
+        });
+
+        it('should JSON encode an Array and pass it into the done callback', (done) => {
+
+            jsonStream()
+                .encode(dataArr)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    } else if(res) {
+                        done();
+                    }
+                });
+        });
+
+        it('should JSON encode other and pass it into the done callback', (done) => {
+
+            jsonStream()
+                .encode(dataStr)
+                .done((e, res) => {
+                    if(e) {
+                        console.error(e);
+                    } else if(res) {
+                        done();
+                    }
                 });
         });
 
