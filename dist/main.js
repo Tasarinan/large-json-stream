@@ -146,7 +146,7 @@ var JSONStream = function JSONStream() {
                 }).join(',') + ']';
             } else if (_lodash2.default.isPlainObject(item)) {
                 return '{' + Object.keys(item).map(function (k) {
-                    return '"' + k + '":' + recStringify(item[k], recDepth, depth + 1);
+                    return JSON.stringify(k) + ':' + recStringify(item[k], recDepth, depth + 1);
                 }).join(',') + '}';
             } else {
                 return JSON.stringify(item);

@@ -90,6 +90,7 @@ describe('JSONStream', function() {
         },
         last: 'str'
     };
+    dataObj['"'] = 'something';
     const dataArr = [
         'something',
         'else',

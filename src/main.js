@@ -113,7 +113,7 @@ const JSONStream = function() {
             if(_.isArray(item)) {
                 return '[' + item.map(d => recStringify(d, recDepth, depth + 1)).join(',') + ']';
             } else if(_.isPlainObject(item)) {
-                return '{' + Object.keys(item).map(k => `"${k}":` + recStringify(item[k], recDepth, depth + 1)).join(',') + '}';
+                return '{' + Object.keys(item).map(k => `${JSON.stringify(k)}:` + recStringify(item[k], recDepth, depth + 1)).join(',') + '}';
             } else {
                 return JSON.stringify(item);
             }
